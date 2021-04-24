@@ -1,0 +1,41 @@
+package com.thinking.machines.store.services;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.stereotype.*;
+import org.springframework.beans.factory.annotation.*;
+import com.thinking.machines.store.dl.*;
+import com.thinking.machines.store.dl.pojo.*;
+import com.thinking.machines.store.beans.*;
+import java.util.*;
+import java.math.*;
+@Controller
+public class PurchaseOrderItemService
+{
+@Autowired
+private ProductRepository productRepository;
+@Autowired
+private PurchaseOrderRepository purchaseOrderRepository;
+@Autowired
+private PurchaseOrderItemRepository purchaseOrderItemRepository;
+
+@ResponseBody
+@PostMapping("/addPurchaseOrderItem")
+public PurchaseOrderItemBean addPurchaseOrderItem(PurchaseOrderItemBean purchaseOrderItemBean)
+{
+Long orderId=purchaseOrderItemBean.getOrderId();
+Long productCode=purchaseOrderItemBean.getProductCode();
+int quantity=purchaseOrderItemBean.getQuantity();
+BigDecimal price=purchaseOrderItemBean.getPrice();
+
+Optional<PurchaseOrder> purchaseOrderResult=purchaseOrderRepository.findById(orderId);
+Optional<Product> productResult=productRepository.findById(productCode);
+
+Product product=null;
+PurchaseOrder purchaseOrder=null;
+if(purchaseOrderResult.isPresent()) purchaseOrder=purchaseOrderResult.get();
+if(productResult.isPresent()) product=productResult.get();
+
+PurchaseOrderItem purchaseOrderItem=new PurchaseOrderItem(purchaseOrder,product,quantity,price);
+purchaseOrderItemRepository.save(purchaseOrderItem);
+return purchaseOrderItemBean;
+}
+}
